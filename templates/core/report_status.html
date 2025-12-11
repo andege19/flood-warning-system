@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Report Status - Flood Warning System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Report Status</h4>
+                </div>
+                
+                <div class="card-body p-5">
+                    <h5 class="mb-4">Report #{{ report.id }}</h5>
+                    
+                    <!-- Status Badge -->
+                    <div class="mb-4">
+                        <p><strong>Status:</strong></p>
+                        <span class="badge p-2" style="background-color: {{ status_color }}; font-size: 1rem;">
+                            {{ report.status }}
+                        </span>
+                    </div>
+                    
+                    <!-- Report Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p><strong>Location:</strong></p>
+                            <p>{{ report.location_description }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Coordinates:</strong></p>
+                            <p>
+                                {% if report.latitude and report.longitude %}
+                                    {{ report.latitude|floatformat:4 }}, {{ report.longitude|floatformat:4 }}
+                                {% else %}
+                                    Not provided
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <p><strong>Report Description:</strong></p>
+                        <p class="text-muted">{{ report.report_text }}</p>
+                    </div>
+                    
+                    <!-- Timeline -->
+                    <div class="mb-4">
+                        <p><strong>Timeline:</strong></p>
+                        <ul class="list-unstyled">
+                            <li><small><strong>Submitted:</strong> {{ report.created_at|date:"M d, Y H:i" }}</small></li>
+                            {% if report.status == 'Validated' %}
+                                <li><small><strong>Validated:</strong> Report has been verified</small></li>
+                            {% elif report.status == 'Rejected' %}
+                                <li><small><strong>Rejected:</strong> Report did not meet criteria</small></li>
+                            {% else %}
+                                <li><small><strong>Under Review:</strong> Awaiting verification</small></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    
+                    <!-- Status Messages -->
+                    <div class="alert" style="background-color: {{ status_color }}20; border-left: 4px solid {{ status_color }};">
+                        {% if report.status == 'Pending' %}
+                            <p>Your report is currently under review by our team. You will receive an email notification once it has been validated or rejected.</p>
+                        {% elif report.status == 'Validated' %}
+                            <p>Thank you! Your report has been validated and is now part of our flood warning system.</p>
+                        {% elif report.status == 'Rejected' %}
+                            <p>Your report could not be validated. This may be due to insufficient information or location issues. You can submit another report.</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="mt-5">
+                        <a href="{% url 'map' %}" class="btn btn-primary">Back to Map</a>
+                        <a href="{% url 'submit-report-page' %}" class="btn btn-outline-primary">Submit Another Report</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+<!-- filepath: c:\flood-project-new\templates\core\report_status.html -->
+{% extends "base.html" %}
+
+{% block title %}Report #{{ report.id }} Status - Flood Warning System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm border-0">
+                <div class="card-header" style="background-color: {{ status_color }};">
+                    <h4 class="mb-0 text-white">Report #{{ report.id }}</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Status</h6>
+                            <span class="badge fs-6" style="background-color: {{ status_color }};">{{ report.status }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Submitted</h6>
+                            <p class="mb-0">{{ report.created_at|date:"F d, Y H:i" }}</p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="mb-4">
+                        <h6 class="text-muted">Location</h6>
+                        <p class="mb-0">{{ report.location_description|default:"Not specified" }}</p>
+                        {% if report.latitude and report.longitude %}
+                        <small class="text-muted">Coordinates: {{ report.latitude }}, {{ report.longitude }}</small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h6 class="text-muted">Description</h6>
+                        <p class="mb-0">{{ report.report_text|default:"No description provided" }}</p>
+                    </div>
+                    
+                    {% if report.photos %}
+                    <div class="mb-4">
+                        <h6 class="text-muted">Photo</h6>
+                        <img src="{{ report.photos.url }}" class="img-fluid rounded" style="max-height: 300px;" alt="Report Photo">
+                    </div>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'map' %}" class="btn btn-primary">View Map</a>
+                        <a href="{% url 'submit-report-page' %}" class="btn btn-success">Submit New Report</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

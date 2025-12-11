@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .header {
+            background-color: #28a745;
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .content {
+            background-color: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .success-badge {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Report Validated</h1>
+        </div>
+        
+        <div class="content">
+            <p>Dear {{ recipient_name }},</p>
+            
+            <p>Great news! Your flood report has been reviewed and validated by the authorities.</p>
+            
+            <p>
+                <span class="success-badge">✓ Validated</span>
+            </p>
+            
+            <p>Report ID: #{{ report_id }}</p>
+            
+            <p>Your report has been added to the flood warning system and will help improve future alerts and responses. Thank you for contributing to community safety!</p>
+        </div>
+    </div>
+</body>
+</html>

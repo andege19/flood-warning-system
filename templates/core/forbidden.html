@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Access Denied - Flood Warning System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-6 mx-auto text-center">
+            <div class="mb-4">
+                <span style="font-size: 80px;">🚫</span>
+            </div>
+            <h1 class="display-5 fw-bold mb-3">Access Denied</h1>
+            <p class="lead text-muted mb-4">{{ message }}</p>
+            <div class="d-flex gap-2 justify-content-center flex-wrap">
+                <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">Go to Dashboard</a>
+                <a href="{% url 'map' %}" class="btn btn-outline-primary btn-lg">View Map</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
