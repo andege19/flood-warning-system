@@ -1,0 +1,17 @@
+django
+psycopg2-binary
+django-cors-headers
+djangorestframework
+celery
+redis
+django-celery-beat
+django-celery-results
+gunicorn
+requests
+scikit-learn
+joblib
+geospatial
+shapely
+django-extensions
+python-dotenv
+django-anymail[brevo]

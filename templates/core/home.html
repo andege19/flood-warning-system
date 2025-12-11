@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Flood Warning System{% endblock %}
+
+{% block content %}
+<div class="bg-light">
+    <!-- Hero Section -->
+    <div class="container py-5 py-section">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Protect Your Community from Floods</h1>
+                <p class="lead mb-4 text-muted">Real-time flood risk monitoring and early warning system for Nairobi's wards. Get accurate predictions and submit reports directly.</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{% url 'map' %}" class="btn btn-primary btn-lg">View Map</a>
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'signup' %}" class="btn btn-outline-primary btn-lg">Get Started</a>
+                    {% else %}
+                        <a href="{% url 'submit-report-page' %}" class="btn btn-outline-primary btn-lg">Submit Report</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="bg-primary bg-opacity-10 p-5 rounded-3" style="min-height: 300px; display: flex; align-items: center; justify-content: center;">
+                    <div class="text-center">
+                        <h3 class="mb-4 fw-bold">System Status</h3>
+                        <div class="row">
+                            <div class="col-6">
+                                <h4 class="text-success fw-bold">Active</h4>
+                                <p class="text-muted small">Wards Monitored</p>
+                            </div>
+                            <div class="col-6">
+                                <h4 class="text-primary fw-bold">Real-time</h4>
+                                <p class="text-muted small">Updates</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="container py-section">
+        <h2 class="text-center mb-5 fw-bold">How It Works</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <h5 class="card-title mb-3 fw-bold">Real-time Monitoring</h5>
+                        <p class="card-text text-muted">Monitor flood risk levels across all wards in real-time with interactive maps and live data updates.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <h5 class="card-title mb-3 fw-bold">Community Reports</h5>
+                        <p class="card-text text-muted">Submit and validate flood reports from the community to help authorities respond quickly and effectively.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <h5 class="card-title mb-3 fw-bold">Early Alerts</h5>
+                        <p class="card-text text-muted">Receive early warnings before floods occur based on predictive analytics and weather data.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="bg-primary text-white py-section">
+        <div class="container text-center">
+            <h3 class="mb-4 fw-bold fs-2">Ready to Get Started?</h3>
+            <p class="lead mb-4">Join our community in making Nairobi safer from floods.</p>
+            {% if not user.is_authenticated %}
+                <a href="{% url 'signup' %}" class="btn btn-light btn-lg me-3">Sign Up</a>
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Login</a>
+            {% else %}
+                <a href="{% url 'map' %}" class="btn btn-light btn-lg">View Map Now</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

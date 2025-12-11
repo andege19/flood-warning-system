@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Not Found - Flood Warning System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-6 mx-auto text-center">
+            <h1 class="display-4 fw-bold mb-3">404</h1>
+            <h2 class="mb-3">{{ message }}</h2>
+            <p class="text-muted mb-4">The page you're looking for doesn't exist.</p>
+            <div class="d-flex gap-2 justify-content-center">
+                <a href="{% url 'home' %}" class="btn btn-primary btn-lg">Back to Home</a>
+                <a href="{% url 'map' %}" class="btn btn-outline-primary btn-lg">View Map</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

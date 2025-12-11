@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard - Flood Warning System{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0" style="height: calc(100vh - 100px);">
+    <div class="row h-100 m-0">
+        <!-- Left Panel: Filter -->
+        <div class="col-lg-3 bg-white border-end p-4" style="overflow-y: auto;">
+            <h3 class="mb-4 fw-bold">Risk Filter</h3>
+            
+            <form method="GET" action="{% url 'map' %}" id="filter-form">
+                <div class="mb-4">
+                    <label for="risk-filter" class="form-label fw-bold">Filter by Risk Level</label>
+                    <select id="risk-filter" name="risk_level" class="form-select form-select-lg">
+                        <option value="all" {% if request.GET.risk_level != 'high' and request.GET.risk_level != 'medium' and request.GET.risk_level != 'low' %}selected{% endif %}>All Levels</option>
+                        <option value="high" {% if request.GET.risk_level == 'high' %}selected{% endif %}>High Risk</option>
+                        <option value="medium" {% if request.GET.risk_level == 'medium' %}selected{% endif %}>Medium Risk</option>
+                        <option value="low" {% if request.GET.risk_level == 'low' %}selected{% endif %}>Low Risk</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 btn-lg mb-4">Apply Filter</button>
+            </form>
+
+            <!-- Your Location -->
+            <div class="alert alert-info mb-4" id="userLocationAlert" style="display: none;">
+                <h6 class="fw-bold mb-2">Your Location</h6>
+                <small id="userLocationText" class="text-muted">Loading...</small>
+            </div>
+
+            <!-- Legend -->
+            <div class="mt-5">
+                <h5 class="fw-bold mb-3">Legend</h5>
+                <div class="d-flex align-items-center mb-2">
+                    <div style="width: 30px; height: 30px; background-color: #dc3545; border-radius: 4px;" class="me-3"></div>
+                    <span>High Risk</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <div style="width: 30px; height: 30px; background-color: #fd7e14; border-radius: 4px;" class="me-3"></div>
+                    <span>Medium Risk</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <div style="width: 30px; height: 30px; background-color: #28a745; border-radius: 4px;" class="me-3"></div>
+                    <span>Low Risk</span>
+                </div>
+            </div>
+
+            <hr class="my-4">
+            <a href="{% url 'submit-report-page' %}" class="btn btn-success w-100 btn-lg">Submit Report</a>
+            {% if user.role == 'authority' %}
+                <a href="{% url 'authority-dashboard' %}" class="btn btn-warning w-100 btn-lg mt-2">Admin Dashboard</a>
+            {% endif %}
+        </div>
+
+        <!-- Right Panel: Map -->
+        <div class="col-lg-9 p-0">
+            <div id="map" style="width: 100%; height: 100%;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const map = L.map('map').setView([-1.286389, 36.817223], 12);
+    let userMarker = null;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(map);
+
+    // Get user's location
+    function showUserLocation() {
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    const accuracy = Math.round(position.coords.accuracy);
+
+                    // Add marker for user location
+                    if (userMarker) {
+                        map.removeLayer(userMarker);
+                    }
+
+                    userMarker = L.circleMarker([lat, lon], {
+                        radius: 10,
+                        fillColor: '#0d6efd',
+                        color: '#fff',
+                        weight: 3,
+                        opacity: 1,
+                        fillOpacity: 0.9
+                    }).addTo(map);
+
+                    userMarker.bindPopup(`
+                        <strong>Your Location</strong><br>
+                        Latitude: ${lat.toFixed(6)}<br>
+                        Longitude: ${lon.toFixed(6)}<br>
+                        Accuracy: ${accuracy}m
+                    `).openPopup();
+
+                    // Center map on user
+                    map.setView([lat, lon], 13);
+
+                    // Show location info in sidebar
+                    document.getElementById('userLocationAlert').style.display = 'block';
+                    document.getElementById('userLocationText').innerHTML = `
+                        Lat: ${lat.toFixed(4)}<br>
+                        Lon: ${lon.toFixed(4)}<br>
+                        Accuracy: ${accuracy}m
+                    `;
+                },
+                function(error) {
+                    console.warn('Geolocation error:', error);
+                }
+            );
+        }
+    }
+
+    // Get user location on load
+    showUserLocation();
+
+    function getRiskColor(risk) {
+        switch(risk.toLowerCase()) {
+            case 'high': return '#dc3545';
+            case 'medium': return '#fd7e14';
+            case 'low': return '#28a745';
+            default: return '#6c757d';
+        }
+    }
+
+    function styleWard(feature) {
+        return {
+            fillColor: getRiskColor(feature.properties.current_risk_level),
+            weight: 2,
+            opacity: 1,
+            color: 'white',
+            fillOpacity: 0.8
+        };
+    }
+
+    let wardLayer;
+
+    fetch('/api/ward-data/')
+        .then(response => response.json())
+        .then(data => {
+            wardLayer = L.geoJSON(data, {
+                style: styleWard,
+                onEachFeature: function(feature, layer) {
+                    layer.bindPopup(
+                        `<strong>${feature.properties.name}</strong><br>` +
+                        `Risk Level: ${feature.properties.current_risk_level}`
+                    );
+                }
+            }).addTo(map);
+        })
+        .catch(error => console.error('Error:', error));
+
+    // Handle filter changes
+    document.getElementById('filter-form').addEventListener('change', function() {
+        const selectedRisk = document.getElementById('risk-filter').value;
+        if (wardLayer) {
+            wardLayer.eachLayer(function(layer) {
+                const risk = layer.feature.properties.current_risk_level;
+                if (selectedRisk === 'all' || risk.toLowerCase() === selectedRisk) {
+                    layer.setStyle({ opacity: 1, fillOpacity: 0.8 });
+                } else {
+                    layer.setStyle({ opacity: 0, fillOpacity: 0 });
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}
